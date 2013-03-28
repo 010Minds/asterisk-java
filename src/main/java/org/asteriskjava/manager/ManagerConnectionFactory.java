@@ -16,6 +16,8 @@
  */
 package org.asteriskjava.manager;
 
+import javax.net.ssl.SSLContext;
+
 /**
  * This factory is the canonical way to obtain new 
  * {@link org.asteriskjava.manager.ManagerConnection}s.<p>
@@ -104,11 +106,12 @@ public class ManagerConnectionFactory
      * @return the created connection to the Asterisk server.
      * @since 0.3
      */
-    public ManagerConnection createSecureManagerConnection()
+    public ManagerConnection createSecureManagerConnection(SSLContext sslContext)
     {
         DefaultManagerConnection dmc;
         dmc = new DefaultManagerConnection(hostname, port, username, password);
         dmc.setSsl(true);
+        dmc.setSslContext(sslContext);
         return dmc;
     }
 }

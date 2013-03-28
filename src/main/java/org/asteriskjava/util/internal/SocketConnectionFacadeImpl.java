@@ -31,19 +31,18 @@ import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.asteriskjava.util.SocketConnectionFacade;
 
-
 /**
  * Default implementation of the SocketConnectionFacade interface using java.io.
- *
+ * 
  * @author srt
  * @version $Id$
  */
-public class SocketConnectionFacadeImpl implements SocketConnectionFacade
-{
+public class SocketConnectionFacadeImpl implements SocketConnectionFacade {
     public static final Pattern CRNL_PATTERN = Pattern.compile("\r\n");
     public static final Pattern NL_PATTERN = Pattern.compile("\n");
     private Socket socket;
@@ -52,161 +51,178 @@ public class SocketConnectionFacadeImpl implements SocketConnectionFacade
     private Trace trace;
 
     /**
-     * Creates a new instance for use with the Manager API that uses CRNL ("\r\n") as line delimiter.
-     *
-     * @param host        the foreign host to connect to.
-     * @param port        the foreign port to connect to.
-     * @param ssl         <code>true</code> to use SSL, <code>false</code> otherwise.
-     * @param timeout     0 incidcates default
-     * @param readTimeout see {@link Socket#setSoTimeout(int)}
-     * @throws IOException if the connection cannot be established.
+     * Creates a new instance for use with the Manager API that uses CRNL
+     * ("\r\n") as line delimiter.
+     * 
+     * @param host
+     *            the foreign host to connect to.
+     * @param port
+     *            the foreign port to connect to.
+     * @param ssl
+     *            <code>true</code> to use SSL, <code>false</code> otherwise.
+     * @param timeout
+     *            0 incidcates default
+     * @param readTimeout
+     *            see {@link Socket#setSoTimeout(int)}
+     * @throws IOException
+     *             if the connection cannot be established.
      */
-    public SocketConnectionFacadeImpl(String host, int port, boolean ssl, int timeout, int readTimeout) throws IOException
-    {
-        this(host, port, ssl, timeout, readTimeout, CRNL_PATTERN);
+    public SocketConnectionFacadeImpl(String host, int port, boolean ssl, int timeout, int readTimeout,
+	    SSLContext sslContext) throws IOException {
+	this(host, port, ssl, timeout, readTimeout, CRNL_PATTERN, sslContext);
     }
 
     /**
-     * Creates a new instance for use with the Manager API that uses the given line delimiter.
-     *
-     * @param host        the foreign host to connect to.
-     * @param port        the foreign port to connect to.
-     * @param ssl         <code>true</code> to use SSL, <code>false</code> otherwise.
-     * @param timeout     0 incidcates default
-     * @param readTimeout see {@link Socket#setSoTimeout(int)}
-     * @param lineDelimiter a {@link Pattern} for matching the line delimiter for the socket
-     * @throws IOException if the connection cannot be established.
+     * Creates a new instance for use with the Manager API that uses CRNL
+     * ("\r\n") as line delimiter.
+     * 
+     * @param host
+     *            the foreign host to connect to.
+     * @param port
+     *            the foreign port to connect to.
+     * @param ssl
+     *            <code>true</code> to use SSL, <code>false</code> otherwise.
+     * @param timeout
+     *            0 incidcates default
+     * @param readTimeout
+     *            see {@link Socket#setSoTimeout(int)}
+     * @throws IOException
+     *             if the connection cannot be established.
      */
-    public SocketConnectionFacadeImpl(String host, int port, boolean ssl, int timeout, int readTimeout, Pattern lineDelimiter) throws IOException
-    {
-        Socket socket;
-
-        if (ssl)
-        {
-            socket = SSLSocketFactory.getDefault().createSocket();
-        }
-        else
-        {
-            socket = SocketFactory.getDefault().createSocket();
-        }
-        socket.setSoTimeout(readTimeout);
-        socket.connect(new InetSocketAddress(host, port), timeout);
-
-        initialize(socket, lineDelimiter);
-        if (System.getProperty(Trace.TRACE_PROPERTY, "false").equalsIgnoreCase("true"))
-        {
-            trace = new FileTrace(socket);
-        }
+    public SocketConnectionFacadeImpl(String host, int port, boolean ssl, int timeout, int readTimeout)
+	    throws IOException {
+	this(host, port, ssl, timeout, readTimeout, CRNL_PATTERN, null);
     }
 
     /**
-     * Creates a new instance for use with FastAGI that uses NL ("\n") as line delimiter.
-     *
-     * @param socket the underlying socket.
-     * @throws IOException if the connection cannot be initialized.
+     * Creates a new instance for use with the Manager API that uses the given
+     * line delimiter.
+     * 
+     * @param host
+     *            the foreign host to connect to.
+     * @param port
+     *            the foreign port to connect to.
+     * @param ssl
+     *            <code>true</code> to use SSL, <code>false</code> otherwise.
+     * @param timeout
+     *            0 incidcates default
+     * @param readTimeout
+     *            see {@link Socket#setSoTimeout(int)}
+     * @param lineDelimiter
+     *            a {@link Pattern} for matching the line delimiter for the
+     *            socket
+     * @throws IOException
+     *             if the connection cannot be established.
      */
-    SocketConnectionFacadeImpl(Socket socket) throws IOException
-    {
-        initialize(socket, NL_PATTERN);
+    public SocketConnectionFacadeImpl(String host, int port, boolean ssl, int timeout, int readTimeout,
+	    Pattern lineDelimiter, SSLContext sslContext) throws IOException {
+	Socket socket;
+
+	if (ssl) {
+	    if (sslContext != null) {
+		socket = sslContext.getSocketFactory().createSocket();
+	    } else {
+		socket = SSLSocketFactory.getDefault().createSocket();
+	    }
+	} else {
+	    socket = SocketFactory.getDefault().createSocket();
+	}
+	socket.setSoTimeout(readTimeout);
+	socket.connect(new InetSocketAddress(host, port), timeout);
+
+	initialize(socket, lineDelimiter);
+	if (System.getProperty(Trace.TRACE_PROPERTY, "false").equalsIgnoreCase("true")) {
+	    trace = new FileTrace(socket);
+	}
     }
 
-    private void initialize(Socket socket, Pattern pattern) throws IOException
-    {
-        this.socket = socket;
-
-        InputStream inputStream = socket.getInputStream();
-        OutputStream outputStream = socket.getOutputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-        this.scanner = new Scanner(reader);
-        this.scanner.useDelimiter(pattern);
-        this.writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+    /**
+     * Creates a new instance for use with FastAGI that uses NL ("\n") as line
+     * delimiter.
+     * 
+     * @param socket
+     *            the underlying socket.
+     * @throws IOException
+     *             if the connection cannot be initialized.
+     */
+    SocketConnectionFacadeImpl(Socket socket) throws IOException {
+	initialize(socket, NL_PATTERN);
     }
 
-    public String readLine() throws IOException
-    {
-        String line;
-        try
-        {
-            line = scanner.next();
-        }
-        catch (IllegalStateException e)
-        {
-            if (scanner.ioException() != null)
-            {
-                throw scanner.ioException();
-            }
-            else
-            {
-                // throw new IOException("No more lines available", e); // JDK6
-                throw new IOException("No more lines available: " + e.getMessage());
-            }
-        }
-        catch (NoSuchElementException e)
-        {
-            if (scanner.ioException() != null)
-            {
-                throw scanner.ioException();
-            }
-            else
-            {
-                // throw new IOException("No more lines available", e); // JDK6
-                throw new IOException("No more lines available: " + e.getMessage());
-            }
-        }
+    private void initialize(Socket socket, Pattern pattern) throws IOException {
+	this.socket = socket;
 
-        if (trace != null)
-        {
-            trace.received(line);
-        }
-        return line;
+	InputStream inputStream = socket.getInputStream();
+	OutputStream outputStream = socket.getOutputStream();
+	BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+	this.scanner = new Scanner(reader);
+	this.scanner.useDelimiter(pattern);
+	this.writer = new BufferedWriter(new OutputStreamWriter(outputStream));
     }
 
-    public void write(String s) throws IOException
-    {
-        writer.write(s);
-        if (trace != null)
-        {
-            trace.sent(s);
-        }
+    public String readLine() throws IOException {
+	String line;
+	try {
+	    line = scanner.next();
+	} catch (IllegalStateException e) {
+	    if (scanner.ioException() != null) {
+		throw scanner.ioException();
+	    } else {
+		// throw new IOException("No more lines available", e); // JDK6
+		throw new IOException("No more lines available: " + e.getMessage());
+	    }
+	} catch (NoSuchElementException e) {
+	    if (scanner.ioException() != null) {
+		throw scanner.ioException();
+	    } else {
+		// throw new IOException("No more lines available", e); // JDK6
+		throw new IOException("No more lines available: " + e.getMessage());
+	    }
+	}
+
+	if (trace != null) {
+	    trace.received(line);
+	}
+	return line;
     }
 
-    public void flush() throws IOException
-    {
-        writer.flush();
+    public void write(String s) throws IOException {
+	writer.write(s);
+	if (trace != null) {
+	    trace.sent(s);
+	}
     }
 
-    public void close() throws IOException
-    {
-        socket.close();
-        scanner.close();
-        if (trace != null) {
-            trace.close();
-        }
+    public void flush() throws IOException {
+	writer.flush();
     }
 
-    public boolean isConnected()
-    {
-        return socket.isConnected();
+    public void close() throws IOException {
+	socket.close();
+	scanner.close();
+	if (trace != null) {
+	    trace.close();
+	}
     }
 
-    public InetAddress getLocalAddress()
-    {
-        return socket.getLocalAddress();
+    public boolean isConnected() {
+	return socket.isConnected();
     }
 
-    public int getLocalPort()
-    {
-        return socket.getLocalPort();
+    public InetAddress getLocalAddress() {
+	return socket.getLocalAddress();
     }
 
-    public InetAddress getRemoteAddress()
-    {
-        return socket.getInetAddress();
+    public int getLocalPort() {
+	return socket.getLocalPort();
     }
 
-    public int getRemotePort()
-    {
-        return socket.getPort();
+    public InetAddress getRemoteAddress() {
+	return socket.getInetAddress();
+    }
+
+    public int getRemotePort() {
+	return socket.getPort();
     }
 }
