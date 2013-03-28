@@ -14,7 +14,6 @@ package org.asteriskjava.manager.event;
 public class NewSMS extends ManagerEvent
 { 
     
-
     /**
      * Serializable version identifier.
      */
