@@ -18,6 +18,7 @@ public class NewSMS extends ManagerEvent
      * Serializable version identifier.
      */
     static final long serialVersionUID = -0L;
+    
     /**
      * The name of the source channel.
      */
