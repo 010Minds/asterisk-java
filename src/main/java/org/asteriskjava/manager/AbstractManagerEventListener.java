@@ -178,7 +178,7 @@ public abstract class AbstractManagerEventListener implements ManagerEventListen
     protected void handleEvent(AgentDumpEvent event)
     {
     }
-
+    
     protected void handleEvent(FaxReceivedEvent event)
     {
     }
@@ -337,6 +337,18 @@ public abstract class AbstractManagerEventListener implements ManagerEventListen
     {
     }
 
+    protected void handleEvent(AntennaLevelEvent event)
+    {
+    }
+    
+    protected void handleEvent(NewSMS event)
+    {
+    }
+    
+    protected void handleEvent(NewSMSConfirmation event)
+    {
+    }
+    
     /**
      * Dispatches to the appropriate handleEvent(...) method.
      * 
@@ -624,5 +636,18 @@ public abstract class AbstractManagerEventListener implements ManagerEventListen
         {
             handleEvent((CoreShowChannelsCompleteEvent) event);
         }
+        else if (event instanceof AntennaLevelEvent)
+        {
+            handleEvent((AntennaLevelEvent) event);
+        } 
+        else if (event instanceof NewSMS)
+        {
+            handleEvent((NewSMS) event);
+        }
+        else if (event instanceof NewSMSConfirmation)
+        {
+            handleEvent((NewSMSConfirmation) event);
+        }
+        
     }
 }
