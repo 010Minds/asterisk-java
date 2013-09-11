@@ -49,16 +49,6 @@ public abstract class AbstractChannelEvent extends ManagerEvent
      */
     private String uniqueId;
 
-    /**
-     * Old callerIdNum now is connectionLineNum
-     */
-    private String connectionLineNum;
-
-    /**
-     * Old callerIdName now is connectionLineName
-     */
-    private String connectionLineName;
-
     protected AbstractChannelEvent(Object source)
     {
         super(source);
@@ -146,25 +136,5 @@ public abstract class AbstractChannelEvent extends ManagerEvent
     public final void setCallerIdName(String callerIdName)
     {
         this.callerIdName = callerIdName;
-    }
-    
-    public final void setConnectionLineNum(String connectionLineNum)
-    {
-	this.connectionLineNum = connectionLineNum;
-    }
-    
-    public final String getConnectionLineNum()
-    {
-	return this.connectionLineNum;
-    }
-    
-    public final void setConnectionLineName(String connectionLineName)
-    {
-	this.connectionLineName = connectionLineName;
-    }
-    
-    public final String getConnectionLineName()
-    {
-	return this.connectionLineName;
     }
 }
