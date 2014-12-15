@@ -29,10 +29,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -232,9 +233,9 @@ public class ManagerConnectionImpl implements ManagerConnection, Dispatcher {
      */
     public ManagerConnectionImpl() {
 	this.id = idCounter.getAndIncrement();
-	this.responseListeners = new HashMap<String, SendActionCallback>();
-	this.responseEventListeners = new HashMap<String, ManagerEventListener>();
-	this.eventListeners = new ArrayList<ManagerEventListener>();
+	this.responseListeners = Collections.synchronizedMap(new HashMap<String, SendActionCallback>());
+	this.responseEventListeners = Collections.synchronizedMap(new HashMap<String, ManagerEventListener>());
+	this.eventListeners = new CopyOnWriteArrayList<ManagerEventListener>();
 	this.protocolIdentifier = new ProtocolIdentifierWrapper();
     }
 
