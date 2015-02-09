@@ -38,7 +38,9 @@ class EventBuilderImpl extends AbstractBuilder implements EventBuilder {
 	registerBuiltinEventClasses();
     }
 
-    @SuppressWarnings({ "deprecation" })
+    @SuppressWarnings({
+	"deprecation"
+    })
     private void registerBuiltinEventClasses() {
 	// please add new event classes alphabetically
 	registerEventClass(AgentCallbackLoginEvent.class);
@@ -91,6 +93,7 @@ class EventBuilderImpl extends AbstractBuilder implements EventBuilder {
 	registerEventClass(JabberEventEvent.class);
 	registerEventClass(JitterBufStatsEvent.class);
 	registerEventClass(JoinEvent.class);
+	registerEventClass(KDisconnectionCauseEvent.class);
 	registerEventClass(LeaveEvent.class);
 	registerEventClass(LinkEvent.class);
 	registerEventClass(ListDialplanEvent.class);
@@ -204,8 +207,7 @@ class EventBuilderImpl extends AbstractBuilder implements EventBuilder {
      * @throws IllegalArgumentException
      *             if clazz is not a valid event class.
      */
-    public final void registerEventClass(String eventType, Class<? extends ManagerEvent> clazz)
-	    throws IllegalArgumentException {
+    public final void registerEventClass(String eventType, Class<? extends ManagerEvent> clazz) throws IllegalArgumentException {
 	Constructor<?> defaultConstructor;
 
 	if (!ManagerEvent.class.isAssignableFrom(clazz)) {
@@ -217,7 +219,9 @@ class EventBuilderImpl extends AbstractBuilder implements EventBuilder {
 	}
 
 	try {
-	    defaultConstructor = clazz.getConstructor(new Class[] { Object.class });
+	    defaultConstructor = clazz.getConstructor(new Class[] {
+		Object.class
+	    });
 	} catch (NoSuchMethodException ex) {
 	    throw new IllegalArgumentException(clazz + " has no usable constructor");
 	}
@@ -269,13 +273,18 @@ class EventBuilderImpl extends AbstractBuilder implements EventBuilder {
 
 	eventClass = registeredEventClasses.get(eventType);
 	if (eventClass == null) {
-	    logger.info("No event class registered for event type '" + eventType + "', attributes: " + attributes
-		    + ". Please report at http://jira.reucon.org/browse/AJ");
+	    logger.info("No event class registered for event type '"
+			+ eventType
+			+ "', attributes: "
+			+ attributes
+			+ ". Please report at http://jira.reucon.org/browse/AJ");
 	    return null;
 	}
 
 	try {
-	    constructor = eventClass.getConstructor(new Class[] { Object.class });
+	    constructor = eventClass.getConstructor(new Class[] {
+		Object.class
+	    });
 	} catch (NoSuchMethodException ex) {
 	    logger.error("Unable to get constructor of " + eventClass.getName(), ex);
 	    return null;
