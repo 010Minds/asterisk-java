@@ -18,6 +18,8 @@ public class KDisconnectionCauseEvent extends AbstractChannelEvent {
     private String causeTxt;
     private String destAddr;
 
+    private String origAddr;
+
     public KDisconnectionCauseEvent(Object source) {
 	super(source);
     }
@@ -73,4 +75,16 @@ public class KDisconnectionCauseEvent extends AbstractChannelEvent {
     public void setDestAddr(String destAddr) {
 	this.destAddr = destAddr;
     }
+    /**
+    * Returns the Caller*ID number of the channel connected if set. If the
+    * channel has no caller id set "unknown" is returned.
+    * 
+    */
+   public String getOrigAddr() {
+	return origAddr;
+   }
+
+   public void setOrigAddr(String origAddr) {
+	this.origAddr = origAddr;
+   }
 }
